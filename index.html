@@ -152,9 +152,9 @@
 
     <script>
         let transactions = [
-            { id: "HP-101", patient: "محمد أحمد علي", service: "كشف باطنية", method: "تطبيق بنكك", amount: 15000, time: "10:30 ص" },
-            { id: "HP-102", patient: "فاطمة عثمان", service: "أمراض النساء والتوليد", method: "نقداً بالعيادة", amount: 18000, time: "11:15 ص" },
-            { id: "HP-103", patient: "عمر خالد", service: "العظام والمفاصل", method: "بطاقة مادا", amount: 12000, time: "12:00 م" }
+            { id: "HP-101", patient: "محمد أحمد علي", phone: "0912345678", service: "كشف باطنية", method: "تطبيق بنكك", amount: 15000, time: "10:30 ص" },
+            { id: "HP-102", patient: "فاطمة عثمان", phone: "0923456789", service: "أمراض النساء والتوليد", method: "نقداً بالعيادة", amount: 18000, time: "11:15 ص" },
+            { id: "HP-103", patient: "عمر خالد", phone: "0998765432", service: "العظام والمفاصل", method: "بطاقة مادا", amount: 12000, time: "12:00 م" }
         ];
 
         const modal = document.getElementById('appModal');
@@ -182,6 +182,10 @@
                     <input type="text" id="payPatient" placeholder="أدخل اسم المريض الكامل">
                 </div>
                 <div class="form-group">
+                    <label>رقم هاتف المريض (للإشعارات والتأكيد):</label>
+                    <input type="text" id="payPhone" placeholder="09xxxxxxxx">
+                </div>
+                <div class="form-group">
                     <label>اختر طريقة السداد:</label>
                     <select id="payMethod">
                         <option>تطبيق بنكك (Bankak)</option>
@@ -207,6 +211,7 @@
                 <tr>
                     <td>${tx.id}</td>
                     <td>${tx.patient}</td>
+                    <td style="direction:ltr; text-align:right;">${tx.phone}</td>
                     <td>${tx.service}</td>
                     <td>${tx.method}</td>
                     <td style="font-weight:bold; color:var(--medical-green);">${tx.amount.toLocaleString()} SDG</td>
@@ -225,13 +230,14 @@
                         <h4 style="color:var(--medical-green); font-size: 22px;">${transactions.length} معاملات</h4>
                     </div>
                 </div>
-                <p style="font-weight:600; margin-bottom: 8px; font-size: 14px;">سجل الحركات المالية المباشرة للمستشفى:</p>
+                <p style="font-weight:600; margin-bottom: 8px; font-size: 14px;">سجل الحركات المالية وبيانات المرضى:</p>
                 <div style="max-height: 250px; overflow-y: auto;">
                     <table class="fin-table">
                         <thead>
                             <tr>
                                 <th>الرقم</th>
                                 <th>المريض</th>
+                                <th>رقم الهاتف</th>
                                 <th>الخدمة</th>
                                 <th>طريقة الدفع</th>
                                 <th>المبلغ</th>
@@ -276,21 +282,30 @@
 
         function submitBookingAndPayment() {
             const patientInput = document.getElementById('payPatient');
+            const phoneInput = document.getElementById('payPhone');
             const methodInput = document.getElementById('payMethod');
             const amountInput = document.getElementById('payAmount');
 
             if (patientInput && amountInput) {
                 const patientName = patientInput.value.trim();
+                const phoneNum = phoneInput ? phoneInput.value.trim() : "غير محدد";
+
                 if (!patientName) {
                     alert('الرجاء إدخال اسم المريض!');
                     return;
                 }
+                if (!phoneNum) {
+                    alert('الرجاء إدخال رقم هاتف المريض!');
+                    return;
+                }
+
                 const method = methodInput ? methodInput.value : "تطبيق بنكك";
                 const amount = parseInt(amountInput.value) || 15000;
                 
                 transactions.unshift({
                     id: "HP-" + Math.floor(100 + Math.random() * 900),
                     patient: patientName,
+                    phone: phoneNum,
                     service: modalTitle.innerText.replace("حجز كشف طبي وسداد - ", ""),
                     method: method,
                     amount: amount,
@@ -301,7 +316,7 @@
                 document.getElementById('quickTotal').innerText = newTotal.toLocaleString() + " SDG";
                 document.getElementById('quickCount').innerText = transactions.length + " معاملات";
 
-                alert(`تم سداد رسوم الحجز بنجاح وتحديث حسابات المستشفى!\nالمريض: ${patientName}\nالمبلغ: ${amount.toLocaleString()} SDG`);
+                alert(`تم سداد رسوم الحجز بنجاح وإرسال التأكيد!\nالمريض: ${patientName}\nالهاتف: ${phoneNum}\nالمبلغ: ${amount.toLocaleString()} SDG`);
             } else {
                 alert('تم تسجيل الدخول أو العملية بنجاح!');
             }
